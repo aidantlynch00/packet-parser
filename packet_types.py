@@ -89,7 +89,7 @@ class Ethernet_802_3(Packet):
         self.fcs = hex_data[-8:]
 
 class ARP(Packet):
-    def __init__(self):
+    def __init__(self, hex_data: str):
         super().__init__(Packet.PacketType.ARP)
 
     def __str__(self):
@@ -97,7 +97,7 @@ class ARP(Packet):
 
 
 class ICMP(Packet):
-    def __init__(self):
+    def __init__(self, hex_data: str):
         super().__init__(Packet.PacketType.ICMP)
 
     def __str__(self):
@@ -105,7 +105,7 @@ class ICMP(Packet):
 
 
 class CDP(Packet):
-    def __init__(self):
+    def __init__(self, hex_data: str):
         super().__init__(Packet.PacketType.CDP)
 
     def __str__(self):
@@ -113,7 +113,7 @@ class CDP(Packet):
 
 
 class IPv4(Packet):
-    def __init__(self):
+    def __init__(self, hex_data: str):
         super().__init__(Packet.PacketType.IPv4)
 
     def __str__(self):
@@ -121,7 +121,7 @@ class IPv4(Packet):
 
 
 class TCP(Packet):
-    def __init__(self):
+    def __init__(self, hex_data: str):
         super().__init__(Packet.PacketType.TCP)
 
     def __str__(self):
@@ -129,7 +129,7 @@ class TCP(Packet):
 
 
 class UDP(Packet):
-    def __init__(self):
+    def __init__(self, hex_data: str):
         super().__init__(Packet.PacketType.UDP)
 
     def __str__(self):
@@ -137,7 +137,7 @@ class UDP(Packet):
 
 
 class STP(Packet):
-    def __init__(self):
+    def __init__(self, hex_data: str):
         super().__init__(Packet.PacketType.STP)
 
     def __str__(self):
