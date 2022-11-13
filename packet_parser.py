@@ -56,6 +56,8 @@ def main():
             lines = file.readlines()
             packets = parse_dataset(lines)
 
+            # count the number of specific packets for stats
+            packet_map: {Packet.PacketType: Packet} = {}
             total_packets = len(packets)
             num_eth2 = 0
             num_eth3 = 0
@@ -65,10 +67,15 @@ def main():
             num_cdp = 0
             num_eth3_stp = 0
             for packet in packets:
+                if packet.type not in packet_map:
+                    packet_map.update({packet.type: packet})
                 if packet.type == Packet.PacketType.Ethernet_802_2:
                     num_eth2 += 1
                     if packet.encap is not None:
                         encap: Packet = packet.encap
+                        if encap.type not in packet_map:
+                            packet_map.update({encap.type: encap})
+
                         num_arp += encap.type == Packet.PacketType.ARP
                         num_eth2_stp += encap.type == Packet.PacketType.STP
                         if encap.type == Packet.PacketType.IPv4:
@@ -78,6 +85,9 @@ def main():
                     num_eth3 += 1
                     if packet.encap is not None:
                         encap: Packet = packet.encap
+                        if encap.type not in packet_map:
+                            packet_map.update({encap.type: encap})
+
                         num_cdp += encap.type == Packet.PacketType.CDP
                         num_eth3_stp += encap.type == Packet.PacketType.STP
 
@@ -90,16 +100,21 @@ def main():
             percent_cdp = (num_cdp / num_eth3) * 100
             percent_eth3_stp = (num_eth3_stp / num_eth3) * 100
 
+            # print packet hierarchy
             print('Packet Hierarchy: {} total frames'.format(total_packets))
             print('Ethernet II ({:2.2f}%) - {} frames'.format(percent_eth2, num_eth2))
-            print('|\n| ARP ({:2.2f}%) - {} packets'.format(percent_arp, num_arp))
-            print('| STP ({:2.2f}%) - {} packets'.format(percent_eth2_stp, num_eth2_stp))
-            print('| IPv4 ({:2.2f}%) - {} packets'.format(percent_ipv4, num_ipv4))
-            print('| |\n| | TCP (%) - packets'.format())
-            print('| | UDP (%) - packets\n| |\n|'.format())
+            print('|\n|----ARP ({:2.2f}%) - {} packets'.format(percent_arp, num_arp))
+            print('|----STP ({:2.2f}%) - {} packets'.format(percent_eth2_stp, num_eth2_stp))
+            print('|----IPv4 ({:2.2f}%) - {} packets'.format(percent_ipv4, num_ipv4))
+            print('|    |\n|    |----TCP ({:2.2f}%) - {} packets'.format(0, 0))
+            print('|    |----UDP ({:2.2f}%) - {} packets\n|    |\n|'.format(0, 0))
             print('Ethernet 802.3 (% of total): {:2.2f}'.format(percent_eth3, num_eth3))
-            print('|\n| CDP ({:2.2f}%) - {} packets'.format(percent_cdp, num_cdp))
-            print('| STP ({:2.2f}%) - {} packets\n|'.format(percent_eth3_stp, num_eth3_stp))
+            print('|\n|----CDP ({:2.2f}%) - {} packets'.format(percent_cdp, num_cdp))
+            print('|----STP ({:2.2f}%) - {} packets\n|'.format(percent_eth3_stp, num_eth3_stp))
+
+            # print field values for one of each packet type
+            for packet in packet_map.values():
+                print(packet)
 
     except IOError:  # handle error
         print('Could not open file {}!'.format(path))
